@@ -1,0 +1,231 @@
+// Slava Pestov's startup script. Doesn't have much in it yet.
+// :folding=explicit:expandFolds=1:
+
+//Most of the file is commented out. Note that the hacks here are
+//not guaranteed to work, might break various features in odd ways,
+//etc.
+
+// Print something useful...
+Log.log(Log.DEBUG,scriptPath,"BeanShell interpreter version "
+	+ this.interpreter.VERSION);
+
+/*{{{ Some useful scripting aids */
+/* If you are a plugin developer you will like this. After calling
+ * ac(), you can access private variables and methods in BeanShell.
+ */
+ac()
+{
+	setAccessibility(true);
+}
+
+/* For the mathematicians among us. */
+e = Math.E;
+pi = Math.PI;
+
+/* I use this for scripting various search and replace operations. */
+s(search,replace,flags)
+{
+	SearchAndReplace.setSearchString(search);
+	SearchAndReplace.setReplaceString(replace);
+	SearchAndReplace.setBeanShellReplace(flags.indexOf('b') != -1);
+	SearchAndReplace.setIgnoreCase(flags.indexOf('i') != -1);
+	SearchAndReplace.setRegexp(flags.indexOf('r') != -1);
+	SearchAndReplace.setSearchFileSet(new CurrentBufferSet());
+	SearchAndReplace.replaceAll(view);
+} /*}}}*/
+
+/*{{{ Setting environment variables on Console plugin */
+
+/* If you use the Console plugin, and want to set some environment
+ * variables for programs you run in the Console, without having to
+ * change operating system specific-scripts (as if the below method is
+ * any easier...)
+ */
+/* if(jEdit.getPlugin("console.ConsolePlugin") != null)
+{
+	setenv("CVS_RSH","ssh");
+	// setenv("PATH",getenv("PATH") + ":" + getenv("HOME") + "/bin");
+} */
+
+/*}}}*/
+
+/*{{{ Hang on copy/paste workaround */
+
+/* If your Java version has shitty clipboard support you can have jEdit
+ * use an internal storage area for the clipboard.
+ *
+ * A rare bug in Sun's Java virtual machine on Linux, for example, can
+ * make the JVM (or the AWT thread at least) hang while trying to copy
+ * or paste.
+ */
+//Registers.setRegister('$',new Registers.StringRegister());
+//Registers.setRegister('%',new Registers.StringRegister());
+
+/*}}}*/
+
+/*{{{ Remapping modifier keys part I */
+
+/* The below is the default, swap the items around to
+ * change meaning of C+, A+, M+, S+.
+ */
+//KeyEventTranslator.setModifierMapping(InputEvent.CTRL_MASK,
+//	InputEvent.ALT_MASK, InputEvent.META_MASK,
+//	InputEvent.SHIFT_MASK);
+
+/* ... and this the MacOS default: */
+//KeyEventTranslator.setModifierMapping(InputEvent.META_MASK,  /* == C+ */
+//	InputEvent.CTRL_MASK,  /* == A+ */
+//	InputEvent.ALT_MASK,   /* == M+ */
+//	InputEvent.SHIFT_MASK  /* == S+ */);
+
+/*}}}*/
+
+/*{{{ Remapping modifier keys part II */
+
+/* Note if you chose to make use of the M+ (option key) prefix on MacOS, you
+ * will need to disable a little piece of code: */
+//Debug.ALT_KEY_PRESSED_DISABLED = false;
+/* Otherwise M+ will be ignored for the purposes of keyboard shortcuts. */
+
+/* But if you enable this, you might find that Option+8 for example invokes your
+ * macro but also inserts a bulletpoint, as per standard Macintosh keyboard
+ * behavior. To disable the Option key for inserting special high ASCII
+ * characters, uncomment this. Note that it has wider implications, notably
+ * DROVAK keyboard shortcuts will be mapped as if the keyboard was QWERTY. */
+//Debug.ALTERNATIVE_DISPATCHER = false;
+
+/*}}}*/
+
+/*{{{ Workaround for buggy international key handling */
+
+/* If international keys do not work in the text area, sometimes it is possible
+ * to workaround the problem by adding translation mappings: */
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key("CS",KeyEvent.VK_COMMA,'\0'),
+//	new KeyEventTranslator.Key("C",KeyEvent.VK_SEMICOLON,'\0')
+// );
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key(null,KeyEvent.VK_CLOSE_BRACKET,'\0'),
+//	new KeyEventTranslator.Key(null,0,'"')
+// );
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key("S",KeyEvent.VK_CLOSE_BRACKET,'\0'),
+//	new KeyEventTranslator.Key(null,0,(char)0x5e)
+// );
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key("C",KeyEvent.VK_CLOSE_BRACKET,'\0'),
+//	new KeyEventTranslator.Key(null,0,'~')
+// );
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key(null,KeyEvent.VK_EQUALS,'\0'),
+//	new KeyEventTranslator.Key(null,0,'\'')
+// );
+
+// KeyEventTranslator.translateKey(
+//	new KeyEventTranslator.Key("S",KeyEvent.VK_EQUALS,'\0'),
+//	new KeyEventTranslator.Key(null,0,'`')
+// );
+
+/*}}}*/
+currentShell = "System";
+
+Map getCurrentBuffers(){
+buffers = jEdit.getBuffers();
+	//runCommandInConsole(view,"System","gvim -d \"" +buffers[0].getPath()+"\" \""+buffers[1].getPath()+"\"");
+	map = new HashMap();
+	for(Buffer buffer: buffers){
+	  path = buffer.getPath();
+	  pos = path.lastIndexOf(".");
+	  if(pos != -1){
+		  ext = path.substring(pos+1);
+		  cur = (Integer)map.get(ext);
+		  if(cur == null){
+			  cur = new Integer(0);
+		  }
+		  map.put(ext,new Integer(cur.intValue()+1));
+	  }
+	}
+	return map;
+}
+
+
+static final String PYTHON = "py";
+static final String CLOJURE = "clj";
+static final String PROLOG = "pro";
+static final String FREGE = "fr";
+static final String OTHER = "other";
+
+String getFileType(buffer){
+
+	if(buffer == null){
+		bufferName = "";
+	}
+	else{
+		bufferName = buffer.getName();
+	}
+	
+	if(bufferName.endsWith(PYTHON)){
+		ft = PYTHON;
+	}
+	else if(bufferName.endsWith(CLOJURE)){
+		ft = CLOJURE;
+	}
+	else if(bufferName.endsWith(PROLOG)){
+		ft = PROLOG;
+	}
+	else if(bufferName.endsWith(FREGE)){
+		ft = FREGE;
+	}
+	else{
+		ft = OTHER;
+	}
+	
+	return ft;//no action as of now
+}	
+
+arr = new char[]{';',' ',')','(','[',']','.',':','\'','{','}','\n',','};
+
+boolean good(cpos){
+   for(int i = 0 ; i < arr.length; i++){
+   	   if(cpos == arr[i]){
+   	     return false;
+   	   }
+   }
+   return true;
+}
+
+
+String getTextUnderCaret(textArea){
+ //Macros.message(view,"getTextUnderCaret1");	
+  text = textArea.getText();
+  pos = textArea.getCaretPosition();	
+  pre = pos-1 >= 0 ? pos -1 : 0;
+  post = pos+1 < text.length() ? pos + 1 : text.length();
+  // Macros.message(view,pre+" "+post);
+  while(good(text.charAt(pre))){
+  	 if( pre == 0 ){
+  	 	break;  	 
+  	 }
+  	 else{
+  	 	  pre--;
+  	 }	 
+  }
+  if(!good(text.charAt(pre))){
+     pre++;
+  }
+   while(good(text.charAt(post))){
+ 	   post++;
+  	  if( post == text.length()){
+  	  	  break;
+   	  }
+  }
+  //Macros.message(view,pre+" "+post);
+  
+  return  text.substring(pre,post);
+}
+
