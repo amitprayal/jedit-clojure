@@ -1,0 +1,28 @@
+console = view.getDockableWindowManager().getDockable("console");
+wm.addDockableWindow("console");
+dockable = wm.getDockableWindow("console");
+
+if(currentShell == PYTHON){
+}
+else if(currentShell == CLOJURE){
+     runCommandInConsole(view,"System","(System/exit 0) ");
+     view.getEditPane().focusOnTextArea();
+}
+else if(currentShell == PROLOG){
+	//-cp C:\\Users\\amit\\apps\\2p-2.9.0\\bin\\2p.jar
+     runCommandInConsole(view,"System","halt.");
+     view.getEditPane().focusOnTextArea();
+}
+else if(currentShell == FREGE){
+	//-cp C:\\Users\\amit\\apps\\2p-2.9.0\\bin\\2p.jar
+     runCommandInConsole(view,"System",":q");
+     view.getEditPane().focusOnTextArea();
+}
+
+else{
+    //shell = console.Shell.getShell("System");
+}
+//Macros.message(view,text);
+//textArea.selectNone();
+wm.getBottomDockingArea().showMostRecent();
+currentShell = "System";

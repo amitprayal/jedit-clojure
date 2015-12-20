@@ -1,0 +1,50 @@
+view.getDockableWindowManager().addDockableWindow("logviewer");
+logviewer = view.getDockableWindowManager().getDockable("logviewer");
+
+text = textArea.getSelectedText();
+if (text == null || text.length()== 0) {
+	text = getTextUnderCaret(textArea);
+	if(text.trim().length()==0){
+		view.getDockableWindowManager().hideDockableWindow("logviewer");
+		return;
+	}
+}
+
+specialForm = new HashMap();
+specialForm.put("loop","1");
+specialForm.put("do","1");
+specialForm.put("recur","1");
+specialForm.put("if","1");
+
+//bufferName = buffer.getName();
+//path = buffer.getPath();
+
+logviewer.delete();
+//logviewer.clear();
+
+if(text.contains("/")){
+	pre = text.substring(0,text.indexOf("/"));
+	runCommandInConsole(view,"System","(spit \"c:/temp/help.txt\" (class-help "+pre+"))");
+}
+else if(specialForm.get(text) != null){
+	runCommandInConsole(view,"System","(doc "+text+")");
+}
+else{
+	runCommandInConsole(view,"System","(if (nil? (resolve 'mdoc)) (load-file \"C:/Users/amit/work/cljwork/help.clj\") nil)");
+	//Thread.sleep(100);
+	//waitForConsole(view);
+	runCommandInConsole(view,"System","(use 'amit.help)");
+	//Thread.sleep(100);
+	//waitForConsole(view);
+	runCommandInConsole(view,"System","(check-docs \""+text+"\")");
+}	
+//waitForConsole(view);
+//Macros.message(view,text);
+//textArea.selectNone();
+logviewer.reload();
+//Thread.sleep(100);
+logviewer.top();
+//wm.getBottomDockingArea().showMostRecent();
+//view.getEditPane().recentBuffer();
+
+		

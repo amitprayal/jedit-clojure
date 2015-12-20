@@ -1,0 +1,7 @@
+//new sidekick.ParserSwitchAction("properties").invoke(view);
+view.getEditPane().focusOnTextArea();
+view.getDockableWindowManager().showDockableWindow("sidekick-tree");
+view.getDockableWindowManager().getDockableWindow("sidekick-tree").setSearchFilter("def");
+//Object obj = 
+//Macros.message(view,"obj "+obj);
+//;

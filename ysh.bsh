@@ -1,0 +1,42 @@
+// This is a recorded macro. First, check over the
+// commands to make sure this is what you intended. Then,
+// save this buffer, and the macro should appear in the
+// Macros menu.
+console = view.getDockableWindowManager().getDockable("console");
+//console.clear();
+//Macros.message(view,bufferName);
+path = buffer.getPath();
+path = path.replace("\\","\\\\");
+
+wm.addDockableWindow("console");
+dockable = wm.getDockableWindow("console");
+ft = getFileType(buffer);
+if(ft == PYTHON){
+	textArea.selectAll();
+	text = textArea.getSelectedText();
+	if (text == null) {
+		return;
+	}
+    shell = console.Shell.getShell("Python");
+    shell.eval(dockable, text);
+}
+else if(ft == CLOJURE){
+     runCommandInConsole(view,"System","java -server -cp %CLASSPATH% clojure.main ");
+     view.getEditPane().focusOnTextArea();
+}
+else if(ft == PROLOG){
+	//-cp C:\\Users\\amit\\apps\\2p-2.9.0\\bin\\2p.jar
+     runCommandInConsole(view,"System","java -server -cp C:/Users/amit/apps/2p-2.9.0/bin/2p.jar alice.tuprologx.ide.CUIConsole "+path);
+     view.getEditPane().focusOnTextArea();
+}
+else if(ft == FREGE){
+	//-cp C:\\Users\\amit\\apps\\2p-2.9.0\\bin\\2p.jar
+     runCommandInConsole(view,"System","C:/Users/amit/Downloads/software/java/fregei-1.2.1-SNAPSHOT/fregei-1.2.1-SNAPSHOT/bin/fregei.bat "+path);
+     view.getEditPane().focusOnTextArea();
+}
+else{
+    //shell = console.Shell.getShell("System");
+}
+//Macros.message(view,text);
+//textArea.selectNone();
+wm.getBottomDockingArea().showMostRecent();

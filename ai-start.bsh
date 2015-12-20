@@ -1,0 +1,20 @@
+ft = getFileType(buffer);
+map = getCurrentBuffers();
+bufferName = buffer.getName();
+inst = map.get(ft);
+//Macros.message(view,"ai-start:"+currentShell+":"+bufferName+":"+inst);
+if(inst != null ){
+	if(inst == 1 || currentShell.equals("System")){
+		Macros.getMacro("amit/ysh").invoke(view);
+		currentShell = ft;
+		if(ft == CLOJURE){
+			Thread.sleep(1000);
+			runCommandInConsole(view,"System","(if (nil? (resolve 'mdoc)) (load-file \"C:/Users/amit/work/cljwork/help.clj\") nil)");
+			runCommandInConsole(view,"System","(use 'amit.help)");
+			runCommandInConsole(view,"System","(check-docs \"\")");
+		}
+	}
+	if(ft == CLOJURE){
+		Macros.getMacro("amit/clj-outline").invoke(view);
+	}
+}

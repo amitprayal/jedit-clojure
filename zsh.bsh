@@ -1,0 +1,67 @@
+// This is a recorded macro. First, check over the
+// commands to make sure this is what you intended. Then,
+// save this buffer, and the macro should appear in the
+// Macros menu.
+
+static final int PYTHON = 0;
+static final int CLOJURE = 1;
+static final int OTHER = 2;
+static final int FREGE = 3;
+
+int ft  =  -1; 
+
+bufferName = buffer.getName();
+
+if(bufferName.endsWith("py")){
+	ft = PYTHON;
+}
+else if(bufferName.endsWith("clj")){
+	ft = CLOJURE;
+}
+else if(bufferName.endsWith("fr")){
+	ft = FREGE;
+}
+else{
+	ft = OTHER;
+	return;//no action as of now
+}
+
+console = view.getDockableWindowManager().getDockable("console");
+console.clear();
+textArea.selectAll();
+text = textArea.getSelectedText();
+if (text == null) {
+	return;
+}
+
+bufferName = buffer.getName();
+path = buffer.getPath();
+path = path.replace("\\","\\\\");
+//Macros.message(view,bufferName);
+
+wm.addDockableWindow("console");
+dockable = wm.getDockableWindow("console");
+
+if(ft == PYTHON){
+    shell = console.Shell.getShell("Python");
+    shell.eval(dockable, text);
+}
+else if(ft == CLOJURE){
+    //shell = console.Shell.getShell("Clojure");
+    //shell.eval(dockable, text);
+    //shell.evalBuffer(dockable, buffer);
+    runCommandInConsole(view,"System","(load-file \""+path +"\")");
+    view.getEditPane().focusOnTextArea();
+
+}
+else if(ft == FREGE){
+     runCommandInConsole(view,"System","C:/Users/amit/Downloads/software/java/fregei-1.2.1-SNAPSHOT/fregei-1.2.1-SNAPSHOT/bin/fregei.bat");
+     view.getEditPane().focusOnTextArea();
+}
+else{
+    //shell = console.Shell.getShell("System");
+}
+//Macros.message(view,text);
+textArea.selectNone();
+wm.getBottomDockingArea().showMostRecent();
+//view.getEditPane().recentBuffer();

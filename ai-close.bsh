@@ -1,0 +1,7 @@
+ft = getFileType(buffer);
+map = getCurrentBuffers();
+inst = map.get(currentShell);
+//Macros.message(view,"ai-close:"+currentShell+":"+inst);
+if(inst == null && currentShell.equals("System") == false){
+	Macros.getMacro("amit/halt").invoke(view);
+}

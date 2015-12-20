@@ -1,0 +1,55 @@
+// This is a recorded macro. First, check over the
+// commands to make sure this is what you intended. Then,
+// save this buffer, and the macro should appear in the
+// Macros menu.
+text = textArea.getText();
+
+if (text == null) {
+        return;
+}
+
+selText = textArea.getSelectedText();
+
+if (selText == null) {
+        return;
+}
+
+textLines = text.split("\n");
+selTextLines = selText.split("\n");
+//Macros.message(view,text);
+//Macros.message(view,selTextLines.length+"");
+lines = new int[selTextLines.length];
+
+boolean matched = true;
+for(int i = 0;i < textLines.length; i++){
+        
+        if(textLines[i].equals(selTextLines[0])){
+                lines[0] = i;
+                int ii = i+1;
+                for(int j = 1 ; j < selTextLines.length; j++,ii++){
+                        //Macros.message(view,textLines[ii]+" : " +selTextLines[j] );
+                        if(textLines[ii].equals(selTextLines[j])){
+                                lines[j] = ii;
+                        }
+                        else{
+                                matched = false;
+                                break;
+                        }
+                }       
+        }   
+}       
+
+if(matched){
+        StringBuilder sb = new StringBuilder();
+        int ct = 0;
+        for(int i = 0;i < textLines.length;i++){
+            if(i == lines[ct]){
+             sb.append(";");
+             ct++;
+            }
+            sb.append(textLines[i]+"\n");
+        }
+        textArea.setText(sb.toString());
+}
+
+

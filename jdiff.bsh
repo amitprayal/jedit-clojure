@@ -1,0 +1,6 @@
+buffers = jEdit.getBuffers();
+
+runCommandInConsole(view,"System","gvim -d \"" +buffers[0].getPath()+"\" \""+buffers[1].getPath()+"\"");
+//for(Buffer buffer: buffers){
+   //Macros.message(view,buffer.getPath());
+//}
